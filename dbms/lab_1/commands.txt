@@ -1,0 +1,140 @@
+/Commands mysql_lab_1
+Triggers,
+Views,
+Procedures, With
+
+create database university;
+show databases;
+use university;
+create table student (rollno int primary key, sname varchar(25), age int);
+show tables;
+select * from student;
+insert into student values( 158, "sayam", 20);
+insert into student values( 160, "shikhar", 21);
+select * from student;
+select sname from student;
+update student set age=30 where sname="sayam";
+delete from student where rollno=159;
+select * from student where age=30 or age=29; 
+select * from student where age>25; 
+select * from student where age=30 and sname="sayam";
+select min(age) from student;
+select count(rollno) from student; % count all instances of roll no
+select sum(age) from student;
+select sum(age) from student where age>25;
+select sname from student order by age asc;
+select sname from student order by sname asc;
+
+select sname,age from student order by sname,age asc; %order sname via sname if name is same then order by age
+
+select sname,age from student where age>18 limit 2; % limiting the no of values to be displayed
+
+select avg(age) from student;
+alter table student add column grp varchar(255);
+
+//questions
+select cid,modelname,min(year),owner,place from car;
+select cid,owner from car order by year asc;
+select * from car where modelname="punto";
+select avg(price) from car where year=2030;
+select * from car where year=2020 and place!="america";
+
+
+
+Tut_1
+Sudo mysql -u root -p --local-infile=1 // for loading the file
+SET GLOBAL local_infile=1;
+Create database dbms_tutorial;
+use dbms_tutorial;
+create table student(snum varchar (25) primary key, sname varchar(25), major varchar(25), level varchar(25), age integer);
+load data local infile "/home/sayamkumar/Student.txt" into table student columns terminated by ",";
+create table faculty(fid varchar(25) primary key, fname varchar(25), deptid integer);
+load data local infile "/home/sayamkumar/Faculty.txt" into table faculty columns terminated by ",";
+create table class(cname varchar(50) primary key, meets_at varchar(50), room varchar(25), fid varchar(20));
+load data local infile "/home/sayamkumar/Class.txt" into table class columns terminated by "," lines terminated by '\r\n';
+create table enrolled(snum varchar(25), cname varchar(50), primary key (snum, cname));
+load data local infile "/home/sayamkumar/Enrolled.txt" into table enrolled columns terminated by "," lines terminated by '\r\n';
+
+select major from student where level="'FR'";
+select sname from student where major="'Computer Science'" and age<20; // if data has double quotes, then use back slash
+
+select sname from student where snum not in (select snum from enrolled); // not enrolled in any course
+select cname from class where fid = (select fid from faculty where fname="'John Williams'");
+select cname from class where room = (select room from class where cname="'Urban Economics'");
+
+
+Tut_2
+select count(*), age from student group by age;
+select count(snum),major from student group by major having count(major)>1;
+select fname,deptid from faculty where deptid between 20 and 40;
+select distinct room from class;
+select * from student where major LIKE "'A%"; % any character any number of times.
+select * from student where major LIKE "'_r%"; _ for only single character.
+
+Solving questions 20.08.2019
+S
+4. select * from student order by age desc;
+
+//joins - joining many tables;
+Inner join - data will be joined if the values are equal
+Syntax - select name, course from instructor join 
+Left join - corresponding to left part. If there is nothing present, display left as it is. 
+Right join
+
+Tut_3 28.08.2019
+Normal Forms - 
+
+Tut_Lab_30.08.2019
+set global local_infile=1;
+Exercises - 
+1. select temp.DEPARTMENT_ID, temp.location_id, temp.street_address, temp.city, temp.state_province, countries.country_name from (select departments.DEPARTMENT_ID, locations.location_id, locations.street_address, locations.city, locations.state_province, locations.country_id from departments left join locations on departments.LOCATION_ID = locations.location_id) as temp inner join countries on temp.country_id=countries.country_id;
+
+2. select first_name, last_name, department_id from employees;
+
+3. select temp.* from (select a.first_name, a.last_name, b.JOB_TITLE, a.department_id  from employees as a inner join jobs as b on a.job_id=b.JOB_ID) as temp where department_id=(select DEPARTMENT_ID from departments where location_id=(select location_id from locations where city="London"));
+
+4. select a.employee_id, a.last_name, a.manager_id, b.last_name from employees as a inner join employees as b where a.manager_id=b.employee_id;
+
+5. select first_name, last_name, hire_date from employees where hire_date > (select hire_date from employees where first_name="Jones");
+
+6. select b.DEPARTMENT_NAME, temp.no_of_employees from (select count(*) as no_of_employees, department_id from employees group by department_id) as temp inner join departments as b on temp.department_id=b.DEPARTMENT_ID;
+
+7. select a.employee_id, b.JOB_TITLE, datediff(a.end_date, a.start_date) as no_of_days from job_history as a inner join jobs as b on a.job_id=b.JOB_ID where a.DEPARTMENT_ID=90;
+
+8. select a.DEPARTMENT_ID, a.DEPARTMENT_NAME, b.first_name from departments as a inner join employees as b where a.MANAGER_ID=b.employee_id;
+
+9. select temp.DEPARTMENT_NAME, temp.first_name, temp.last_name, locations.city from (select a.DEPARTMENT_NAME, b.first_name, b.last_name, a.LOCATION_ID from departments as a inner join employees as b on a.MANAGER_ID=b.employee_id) as temp inner join locations on temp.LOCATION_ID=locations.location_id;
+
+10. select b.JOB_TITLE, temp.avg_salary from (select avg(salary) as avg_salary, job_id from employees group by job_id) as temp inner join jobs as b on temp.job_id=b.JOB_ID;
+
+11. select b.JOB_TITLE, a.first_name, a.last_name, a.salary-b.MIN_SALARY as diff from employees as a inner join jobs as b on a.job_id=b.JOB_ID;
+
+12. select b.* from (select * from employees where salary>10000) as a inner join job_history as b on a.employee_id=b.employee_id;
+
+13. select DEPARTMENT_NAME, first_name, last_name,hire_date, salary from (select a.DEPARTMENT_NAME, b.first_name, b.last_name, b.hire_date, b.salary from departments as a inner join employees as b on a.MANAGER_ID=b.employee_id) as temp where datediff(str_to_date('2019-09-06', '%Y-%m-%d'),temp. hire_date)>=5475;
+
+
+Miscellaneous Exercises - 
+1. select substring(first_name, 1, 3) as first_name from employees;
+
+2.  select first_name, last_name, department_id from employees where department_id=30 or department_id=100 order by department_id asc;
+
+3. select * from (select count(*) as c, avg(salary), department_id from employees group by department_id) as temp where c>=10;
+
+4. select first_name, last_name, salary from employees where salary>=(select salary from employees where last_name="Bell");
+
+5. select JOB_ID, MAX_SALARY from jobs where MAX_SALARY>=4000;
+
+6. select * from (select a.employee_id, a.first_name, a.last_name, a.salary, a.department_id, b.average from employees as a inner join (select avg(salary) as average, department_id from employees group by department_id) as b on a.department_id=b.department_id) as temp where salary>average;
+
+
+Tut 19.10.2019
+1. select name from Person;
+2. select distinct name from Frequents;
+3. select distinct a.name, a.age from Person as a inner join (select name from Eats where pizza="sausage") as b where a.name=b.name;
+4. select distinct a.name, a.age from Person as a inner join (select name from Eats where pizza="mushroom") as b where a.name=b.name;
+5. 
+a. select a.pizzeria from Frequents as a inner join (select name from Person where age<18) as b where a.name=b.name;
+b. select distinct a.name from (select name from Person where gender="female") as a inner join (select name from Eats where pizza="mushroom" or pizza="pepperoni") as b on a.name=b.name;
+c. select temp from (select a.name as temp from (select name from Person where gender="female") as a inner join (select name from Eats where pizza="mushroom") as b where a.name=b.name) as c where temp in (select d.name from (select name from Person where gender="female") as d inner join (select name from Eats where pizza="pepperoni") as e where d.name=e.name);
+d. select pizzeria from Serves where pizza in (select pizza from Eats where name="Amy") and price<10;

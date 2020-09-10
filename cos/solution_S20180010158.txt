@@ -1,0 +1,6 @@
+I am not part of the problem. I am a Republican.
+0 1 1 2 3 5
+1 b 243
+10 5
+5 115
+1 4 2 3 5 6
